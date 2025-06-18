@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>APPFinanceLH - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .container {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: #2f3542;
+            color: #fff;
+            height: 100vh;
+            padding: 1rem 0;
+            position: fixed;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 1rem 1.5rem;
+            transition: background 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #57606f;
+        }
+
+        .content {
+            margin-left: 220px;
+            padding: 1rem 2rem;
+            width: 100%;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-menu button {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+            border-radius: 5px;
+            min-width: 150px;
+        }
+
+        .user-dropdown a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .user-dropdown a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Exibir dropdown ao clicar (classe ativa) */
+        .user-menu.active .user-dropdown {
+            display: block;
+        }
+
+        .cards {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 10px;
+            flex: 1;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .card h3 {
+            margin: 0 0 10px;
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .card p {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .main-content {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .transactions {
+            flex: 2;
+        }
+
+        .transactions h3 {
+            margin-bottom: 1rem;
+        }
+
+        .transactions table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transactions th, .transactions td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .chart-container {
+            flex: 1;
+        }
+
+        .chart-container h3 {
+            margin-bottom: 1rem;
+        }
+
+        canvas {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            width: 100% !important;
+            height: 200px !important;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- MENU LATERAL -->
+    <div class="sidebar">
+        <h2>APPFinanceLH</h2>
+        <a href="#">Dashboard</a>
+        <a href="#">Orders</a>
+        <a href="#">Products</a>
+        <a href="#">Customers</a>
+        <a href="#">Reports</a>
+        <a href="#">Integrations</a>
+    </div>
+
+    <!-- CONTEÚDO -->
+    <div class="content">
+        <!-- TOPO -->
+        <div class="topbar">
+            <div class="user-menu" id="userMenu">
+                <button id="userButton">Olá, <span th:text="${nome}">Usuário</span> ⏷</button>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#">Configurar</a>
+                    <a href="#">Avisos</a>
+                    <a th:href="@{/sair}">Sair</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARDS -->
+        <div class="cards">
+            <div class="card">
+                <h3>Saldo Atual</h3>
+                <p>R$ 8.450,00</p>
+            </div>
+            <div class="card">
+                <h3>Entradas no Mês</h3>
+                <p>R$ 3.200,00</p>
+            </div>
+            <div class="card">
+                <h3>Descontos no Mês</h3>
+                <p>R$ 950,00</p>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <div class="main-content">
+            <!-- LISTA DE TRANSAÇÕES -->
+            <div class="transactions">
+                <h3>Últimas Transações</h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr><td>01/06/2025</td><td>Pagamento Cliente A</td><td>+ R$ 1.200,00</td></tr>
+                    <tr><td>02/06/2025</td><td>Taxa bancária</td><td>- R$ 15,00</td></tr>
+                    <tr><td>03/06/2025</td><td>Compra Material X</td><td>- R$ 400,00</td></tr>
+                    <tr><td>04/06/2025</td><td>Assinatura Ferramenta Z</td><td>- R$ 90,00</td></tr>
+                    <tr><td>05/06/2025</td><td>Venda Serviço Premium</td><td>+ R$ 750,00</td></tr>
+                    <tr><td>07/06/2025</td><td>Mensalidade Plataforma</td><td>- R$ 150,00</td></tr>
+                    <tr><td>08/06/2025</td><td>Comissão Afiliado</td><td>- R$ 100,00</td></tr>
+                    <tr><td>09/06/2025</td><td>Recebimento Cliente B</td><td>+ R$ 2.000,00</td></tr>
+                    <tr><td>10/06/2025</td><td>Venda Produto Y</td><td>+ R$ 1.000,00</td></tr>
+                    <tr><td>11/06/2025</td><td>Campanha de anúncios</td><td>- R$ 600,00</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- GRÁFICO -->
+            <div class="chart-container">
+                <h3>Traffic - Últimos 6 meses</h3>
+                <canvas id="trafficChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico Chart.js -->
+<script>
+    const ctx = document.getElementById('trafficChart').getContext('2d');
+    const trafficChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+            datasets: [{
+                label: 'Receita',
+                data: [3000, 4500, 3800, 5000, 4200, 5300],
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                borderColor: '#007bff',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'R$ ' + value.toLocaleString('pt-BR');
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!-- Dropdown interativo -->
+<script>
+    const userMenu = document.getElementById('userMenu');
+    const userButton = document.getElementById('userButton');
+
+    userButton.addEventListener('click', function (event) {
+        event.stopPropagation(); // evita fechamento imediato
+        userMenu.classList.toggle('active');
+    });
+
+    window.addEventListener('click', function () {
+        userMenu.classList.remove('active');
+    });
+
+    document.getElementById('userDropdown').addEventListener('click', function (e) {
+        e.stopPropagation(); // mantém aberto ao clicar nos links
+    });
+</script>
+</body>
+</html>
