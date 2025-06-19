@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotEmpty;
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotEmpty
     private String nome;
