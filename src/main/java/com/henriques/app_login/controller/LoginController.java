@@ -48,6 +48,13 @@ public class LoginController {
         return "login";
     }
 
+    @GetMapping("/sair")
+    public String sair(HttpServletResponse response) throws UnsupportedEncodingException {
+        CookieService.setCookie(response, "usuarioId", "", 0);
+        CookieService.setCookie(response, "nomeUsuario", "", 0);
+        return "login";
+    }
+
     @GetMapping("/cadastroUsuario")
     public String cadastro() {
         return "cadastro";
